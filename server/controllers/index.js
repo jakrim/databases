@@ -7,7 +7,7 @@ module.exports = {
       // console.log(res);
       models.messages.get((err, message) => {
         if (err) {
-          res.send(err);
+          res.sendStatis(500);
           //     console.log('error: ', err);
         } else {
           res.send(message);

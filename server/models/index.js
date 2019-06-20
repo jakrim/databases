@@ -36,26 +36,11 @@ module.exports = {
   users: {
     // Ditto as above.
     get: function(callback) {
-      db.query('SELECT name FROM Users', (error, data) => {
-        if (error) {
-          callback(error);
-        } else {
-          callback(data);
-        }
-      });
+      db.query('SELECT name FROM Users', callback);
     },
 
-    post: function(callback) {
-      db.query(
-        'INSERT INTO Messages (messages, userID, roomID)',
-        (err, results) => {
-          if (err) {
-            callback(err);
-          } else {
-            callback(results);
-          }
-        }
-      );
+    post: function(username, callback) {
+      db.query('INSERT INTO users (username) values ?', [username], callback);
     }
   }
 };

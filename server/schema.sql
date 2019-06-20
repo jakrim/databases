@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS chat;
+CREATE DATABASE IF NOT EXISTS chat;
 
-CREATE DATABASE chat;
+DROP DATABASE IF EXISTS chat;
 
 USE chat;
 
@@ -17,7 +17,7 @@ USE chat;
 -- );
 
 CREATE TABLE Messages (
-  id INT NOT NULL AUTO_INCREMENT,
+  id INT AUTO_INCREMENT,
   messages VARCHAR(255),
   username VARCHAR(255),
   roomname VARCHAR(255),
