@@ -2,95 +2,41 @@ var db = require('../db/index.js').connection;
 // var Promise = require('bluebird');
 
 module.exports = {
+
   messages: {
-    get: function(callback) {
-      // debugger;
-      // db.queryAsync = Promise.promisify(db.query);
-      db.query('SELECT * FROM Messages', (error, data) => {
-        if (error) {
-          callback(error);
-        } else {
-          callback(null, data);
-        }
+    get: function (callback) {
+      // fetch all messages
+      // text, username, roomname, id
+      var queryStr = 'select messages.id, messages.text, messages.roomname, users.username \
+                      from messages left outer join users on (messages.userid = users.id) \
+                      order by messages.id desc';
+      db.query(queryStr, function(err, results) {
+        callback(err, results);
       });
-    }, // a function which produces all the messages
-
-    post: function({ messages, username, roomname }, callback) {
-      db.query(
-        'INSERT INTO Messages (messages, username, roomname) VALUES (? , ? , ?)',
-        [messages, username, roomname],
-        (error, data) => {
-          if (error) {
-            callback(error);
-          } else {
-            callback(null, data);
-          }
-        }
-      );
-      // db.query -- SQL - insert
-      // /  db.update - update field
-      // upsert - if row doesn't exist - it inserts
-    } // a function which can be used to insert a message into the database
-  },
-
-  users: {
-    // Ditto as above.
-    get: function(callback) {
-      db.query('SELECT name FROM Users', callback);
     },
-
-    post: function(username, callback) {
-      db.query('INSERT INTO users (username) values ?', [username], callback);
+    post: function (params, callback) {
+      // create a message for a user id based on the given username
+      var queryStr = 'insert into messages(text, userid, roomname) \
+                      value (?, (select id from users where username = ? limit 1), ?)';
+      db.query(queryStr, params, function(err, results) {
+        callback(err, results);
+      });
+    }
+  },
+  users: {
+    get: function (callback) {
+      // fetch all users
+      var queryStr = 'select * from users';
+      db.query(queryStr, function(err, results) {
+        callback(err, results);
+      });
+    },
+    post: function (params, callback) {
+      // create a user
+      var queryStr = 'insert into users(username) values (?)';
+      db.query(queryStr, params, function(err, results) {
+        callback(err, results);
+      });
     }
   }
 };
-
-// module.exports.messages.post(
-//   { message: 'Hi', username: 'Jesse', roomname: 'Lobby' },
-//   (error, data) => {
-//     if (error) {
-//       console.error(error);
-//     } else {
-//       console.log(data);
-//     }
-//   }
-// );
-
-//db.query.... - MDN
-
-// return db.queryAsync('SELECT * FROM Messages').then(data => {
-//   console.log(data);
-// });
-// db.queryAsync = Promise.promisify(db.query);
-// // db.queryAsync('SELECT)
-
-// PROMISIFICATION: return db.query
-//  db.queryAsync = function(...args ){ //q, ayncargs,
-//   return new Promise((resolve, reject) => {
-//     db.query(...args, ((err, results) => {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(results);
-//       }
-//     }))
-//   })
-// }   //---- db.queryAsync
-
-// // can abstract out fn and set equal to promisify
-// var promisify = function(func) {
-//   return function(...args ){ //q, ayncargs,
-//     return new Promise((resolve, reject) => {
-//       func(...args, ((err, results) => {
-//         if (err) {
-//           reject(err);
-//         } else {
-//           resolve(results);
-//         }
-//       }))
-//     })
-// }
-
-// (first arg is string - represents SQL command)
-// (second arg is callback (err, result)
-// SQL - select
